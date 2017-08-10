@@ -1,8 +1,10 @@
 """Params for GAN."""
 
 # params for MNIST dataset
-dataset_mean = (0.5, 0.5, 0.5)
-dataset_std = (0.5, 0.5, 0.5)
+dataset_mean_value = 0.5
+dataset_std_value = 0.5
+dataset_mean = (dataset_mean_value, dataset_mean_value, dataset_mean_value)
+dataset_std = (dataset_std_value, dataset_std_value, dataset_std_value)
 batch_size = 100
 
 # params for discriminator model

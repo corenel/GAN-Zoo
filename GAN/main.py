@@ -11,7 +11,7 @@ from torchvision import datasets, transforms
 from dataset import mnist_dataloader
 from models import Discriminator, Generator
 from params import *
-from utils import denorm, make_variable
+from utils import denormalize, make_variable
 
 if __name__ == '__main__':
     # init models
@@ -95,8 +95,9 @@ if __name__ == '__main__':
                                   g_fake_loss.data[0]))
 
         fake_images = fake_images.view(fake_images.size(0), 1, 28, 28)
-        torchvision.utils.save_image(denorm(fake_images.data),
-                                     "../data/GAN_fake_images-{}.png".format(epoch + 1))
+        torchvision.utils.save_image(denormalize(fake_images.data),
+                                     "../data/GAN_fake_images-{}.png"
+                                     .format(epoch + 1))
 
     # Save the trained parameters
     torch.save(G.state_dict(), './generator.pkl')

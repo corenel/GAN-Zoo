@@ -33,7 +33,7 @@ class Generator(nn.Module):
                                    nn.Linear(hidden_size, hidden_size),
                                    nn.LeakyReLU(0.2),
                                    nn.Linear(hidden_size, output_size),
-                                   nn.Sigmoid())
+                                   nn.Tanh())
 
     def forward(self, x):
         """Forward step for Generator model."""

@@ -48,7 +48,7 @@ if __name__ == '__main__':
                 d_real_loss = criterion(real_pred, real_labels)
                 d_real_loss.backward()
 
-                z = make_variable(torch.rand(batch_size, g_input_size))
+                z = make_variable(torch.randn(batch_size, g_input_size))
                 fake_images = G(z)
                 fake_pred = D(fake_images)
                 d_fake_loss = criterion(fake_pred, fake_labels)
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 D.zero_grad()
                 G.zero_grad()
 
-                z = make_variable(torch.rand(batch_size, g_input_size))
+                z = make_variable(torch.randn(batch_size, g_input_size))
                 fake_images = G(z)
                 fake_pred = D(fake_images)
                 # note that we use real_labels there

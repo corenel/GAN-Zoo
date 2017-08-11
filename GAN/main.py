@@ -49,7 +49,7 @@ if __name__ == '__main__':
             ##############################
             # (1) training discriminator #
             ##############################
-            for d_idx in range(d_steps):
+            for d_step in range(d_steps):
                 d_optimizer.zero_grad()
 
                 d_pred_real = D(images)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
                                   num_epochs,
                                   step + 1,
                                   len(mnist_dataloader),
-                                  d_idx + 1,
+                                  d_step + 1,
                                   d_steps,
                                   d_loss_real.data[0] + d_loss_fake.data[0],
                                   d_loss_real.data[0],
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             ##########################
             # (2) training generator #
             ##########################
-            for g_idx in range(g_steps):
+            for g_step in range(g_steps):
                 D.zero_grad()
                 G.zero_grad()
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
                                   num_epochs,
                                   step + 1,
                                   len(mnist_dataloader),
-                                  g_idx + 1,
+                                  g_step + 1,
                                   g_steps,
                                   g_fake_loss.data[0]))
 

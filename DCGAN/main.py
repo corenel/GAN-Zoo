@@ -49,7 +49,7 @@ if __name__ == '__main__':
             ##############################
             # (1) training discriminator #
             ##############################
-            D.zero_grad()
+            d_optimizer.zero_grad()
 
             images = make_variable(images)
             noise = make_variable(torch.randn(
@@ -70,8 +70,8 @@ if __name__ == '__main__':
             ##########################
             # (2) training generator #
             ##########################
-            D.zero_grad()
-            G.zero_grad()
+            d_optimizer.zero_grad()
+            g_optimizer.zero_grad()
 
             noise = make_variable(torch.randn(
                 batch_size, z_dim, 1, 1).normal_(0, 1))

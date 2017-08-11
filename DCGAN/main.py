@@ -14,6 +14,10 @@ from params import *
 from utils import denormalize, init_random_seed, make_variable
 
 if __name__ == '__main__':
+    ####################
+    # 1. setup network #
+    ####################
+
     # init random seed
     init_random_seed()
 
@@ -21,7 +25,7 @@ if __name__ == '__main__':
     D, G = get_models(num_channels, d_conv_dim, g_conv_dim, z_dim, num_gpu,
                       d_model_restore, g_model_restore)
 
-    # setup optimizer
+    # init optimizer
     criterion = nn.BCELoss()
     if torch.cuda.is_available():
         criterion.cuda()
@@ -30,7 +34,9 @@ if __name__ == '__main__':
     g_optimizer = optim.Adam(
         G.parameters(), lr=learning_rate, betas=(beta1, beta2))
 
-    # training
+    ###############
+    # 2. training #
+    ###############
     fixed_noise = make_variable(torch.randn(
         batch_size, z_dim, 1, 1).normal_(0, 1))
 
@@ -40,7 +46,9 @@ if __name__ == '__main__':
             real_labels = make_variable(torch.ones(batch_size))
             fake_labels = make_variable(torch.zeros(batch_size))
 
-            # training discriminator
+            ##############################
+            # (1) training discriminator #
+            ##############################
             D.zero_grad()
 
             images = make_variable(images)
@@ -51,14 +59,17 @@ if __name__ == '__main__':
             d_loss_real = criterion(d_pred_real, real_labels)
 
             fake_images = G(noise)
-            d_pred_fake = D(fake_images)
+            # use detach to avoid bp through G and spped up inference
+            d_pred_fake = D(fake_images.detach())
             d_loss_fake = criterion(d_pred_fake, fake_labels)
 
             d_loss = d_loss_real + d_loss_fake
             d_loss.backward()
             d_optimizer.step()
 
-            # training generator
+            ##########################
+            # (2) training generator #
+            ##########################
             D.zero_grad()
             G.zero_grad()
 
@@ -72,7 +83,9 @@ if __name__ == '__main__':
 
             g_optimizer.step()
 
-            # print info
+            ##################
+            # (3) print info #
+            ##################
             if ((step + 1) % log_step == 0):
                 print("Epoch [{}/{}] Step [{}/{}]:"
                       "d_loss={} g_loss={} D(x)={} D(G(z))={}"
@@ -85,14 +98,18 @@ if __name__ == '__main__':
                               d_loss_real.data[0],
                               d_loss_fake.data[0]))
 
-            # save fake images
+            ########################
+            # (4) save fake images #
+            ########################
             if ((step + 1) % sample_step == 0):
                 fake_images = G(fixed_noise)
                 torchvision.utils.save_image(denormalize(fake_images.data),
                                              "../data/DCGAN-fake-{}-{}.png"
                                              .format(epoch + 1, step + 1))
 
-        # save the model parameters
+        #############################
+        # (5) save model parameters #
+        #############################
         if ((epoch + 1) % save_step == 0):
             torch.save(D.state_dict(), os.path.join(
                 model_root, "DCGAN-discriminator-{}.pkl".format(epoch + 1)))

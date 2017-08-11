@@ -17,7 +17,7 @@ After 20 epochs training on CFAIR-10, the generator can sample as following:
 
 ![DCGAN-fake-20-700](../images/DCGAN-fake-20-700.png)
 
-But when we continue training, the discriminator may get very low loss, and then the generator wil stuck at a fixed loss value. 
+But when we continue training, the discriminator may get very low loss, and then the generator wil stuck at a fixed loss value.
 
 ```
 Epoch [24/25] Step [200/782]:d_loss=2.160674767992532e-07 g_loss=27.614051818847656 D(x)=2.160674767992532e-07 D(G(z))=0.0
@@ -45,3 +45,12 @@ The sample image recovers:
 ![DCGAN-fake-25-700](../images/DCGAN-fake-25-700.png)
 
 That indicates that the training process of DCGAN is unstable. Thus we need WGAN.
+
+## Improvement
+You can use [some tips and tricks](https://github.com/soumith/ganhacks) to improve the original DCGAN. The following tricks maybe work:
+- Avoid Sparse Gradients: ReLU, MaxPool
+- Use Soft and Noisy Labels
+- Add noise to inputs, decay over time
+- Use Dropouts in G in both train and test phase
+
+Or just try WGAN!

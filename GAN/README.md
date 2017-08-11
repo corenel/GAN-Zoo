@@ -23,7 +23,7 @@ $$
 Run `python3 main.py` to start training GAN.
 
 ## Structure
-- `dataset.py`: dataset setting and data loader.
+- `data_loader.py`: dataset setting and data loader.
 - `models.py`: discriminator and generator network model.
 - `params.py`: parameters for the training process.
 - `utils.py`: some useful fuctions for training.

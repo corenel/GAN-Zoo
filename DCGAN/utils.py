@@ -1,4 +1,4 @@
-"""Utils for GAN."""
+"""Utils for DCGAN."""
 
 import torch
 from torch.autograd import Variable

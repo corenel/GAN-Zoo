@@ -3,12 +3,10 @@
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
-from torchvision import datasets, transforms
 
-from dataset import mnist_dataloader
+from data_loader import mnist_dataloader
 from models import Discriminator, Generator
 from params import *
 from utils import denormalize, make_variable

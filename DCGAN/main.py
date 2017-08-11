@@ -2,34 +2,17 @@
 """Main code for DCGAN."""
 
 import torch
-import torch.backends.cudnn as cudnn
 import torch.nn as nn
 import torch.optim as optim
 import torchvision
 
-from models import Discriminator, Generator
+from models import get_models
 from params import *
-from utils import init_random_seed, init_weights
+from utils import init_random_seed
 
 if __name__ == '__main__':
     # init random seed
     init_random_seed()
 
     # init models
-    D = Discriminator(num_channels=num_channels,
-                      conv_dim=d_conv_dim,
-                      num_workers=num_workers)
-    G = Generator(num_channels=num_channels,
-                  z_dim=z_dim,
-                  conv_dim=g_conv_dim,
-                  num_workers=num_workers)
-
-    # init weights of models
-    D.apply(init_weights)
-    G.apply(init_weights)
-
-    # check if cuda is available
-    if torch.cuda.is_available():
-        cudnn.benchmark = True
-        D.cuda()
-        G.cuda()
+    D, G = get_models(num_channels, d_conv_dim, g_conv_dim, z_dim, num_workers)

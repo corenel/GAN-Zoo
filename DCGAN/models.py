@@ -1,7 +1,10 @@
 """Models for DCGAN."""
 
 import torch
+import torch.backends.cudnn as cudnn
 import torch.nn as nn
+
+from utils import init_weights
 
 
 class Discriminator(nn.Module):
@@ -85,3 +88,26 @@ class Generator(nn.Module):
             out = self.layer(input)
         # flatten output
         return out.view(-1, 1).squeeze(1)
+
+
+def get_models(num_channels, d_conv_dim, g_conv_dim, z_dim, num_workers):
+    """Get models with cuda and inited weights."""
+    D = Discriminator(num_channels=num_channels,
+                      conv_dim=d_conv_dim,
+                      num_workers=num_workers)
+    G = Generator(num_channels=num_channels,
+                  z_dim=z_dim,
+                  conv_dim=g_conv_dim,
+                  num_workers=num_workers)
+
+    # init weights of models
+    D.apply(init_weights)
+    G.apply(init_weights)
+
+    # check if cuda is available
+    if torch.cuda.is_available():
+        cudnn.benchmark = True
+        D.cuda()
+        G.cuda()
+
+    return D, G

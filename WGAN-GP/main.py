@@ -30,9 +30,9 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         criterion.cuda()
     d_optimizer = optim.Adam(
-        D.parameters(), lr=learning_rate, betas=(beta1, beta2))
+        D.parameters(), lr=d_learning_rate, betas=(beta1, beta2))
     g_optimizer = optim.Adam(
-        G.parameters(), lr=learning_rate, betas=(beta1, beta2))
+        G.parameters(), lr=g_learning_rate, betas=(beta1, beta2))
 
     ###############
     # 2. training #
@@ -102,16 +102,23 @@ if __name__ == '__main__':
             # (4) save fake images #
             ########################
             if ((step + 1) % sample_step == 0):
+                if not os.path.exists(data_root):
+                    os.makedirs(data_root)
                 fake_images = G(fixed_noise)
                 torchvision.utils.save_image(denormalize(fake_images.data),
-                                             "../data/DCGAN-fake-{}-{}.png"
-                                             .format(epoch + 1, step + 1))
+                                             os.path.join(
+                                                 data_root,
+                                                 "WGAN-fake-{}-{}.png"
+                                                 .format(epoch + 1, step + 1))
+                                             )
 
         #############################
         # (5) save model parameters #
         #############################
         if ((epoch + 1) % save_step == 0):
+            if not os.path.exists(model_root):
+                os.makedirs(model_root)
             torch.save(D.state_dict(), os.path.join(
-                model_root, "DCGAN-discriminator-{}.pkl".format(epoch + 1)))
+                model_root, "WGAN-discriminator-{}.pkl".format(epoch + 1)))
             torch.save(G.state_dict(), os.path.join(
-                model_root, "DCGAN-generator-{}.pkl".format(epoch + 1)))
+                model_root, "WGAN-generator-{}.pkl".format(epoch + 1)))

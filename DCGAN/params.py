@@ -6,7 +6,7 @@ dataset_mean_value = 0.5
 dataset_std_value = 0.5
 dataset_mean = (dataset_mean_value, dataset_mean_value, dataset_mean_value)
 dataset_std = (dataset_std_value, dataset_std_value, dataset_std_value)
-batch_size = 128
+batch_size = 64
 image_size = 64
 
 # params for model
@@ -20,8 +20,8 @@ g_model_restore = None
 
 # params for training
 num_gpu = 1
-num_epochs = 200
-log_step = 100
+num_epochs = 25
+log_step = 10
 sample_step = 100
 save_step = 10
 manual_seed = None

@@ -48,13 +48,10 @@ if __name__ == '__main__':
                 batch_size, z_dim, 1, 1).normal_(0, 1))
 
             d_pred_real = D(images)
-            # use L2 loss instead of BCE for stable training
-            # d_loss_real = torch.mean((d_pred_real - 1) ** 2)
             d_loss_real = criterion(d_pred_real, real_labels)
 
             fake_images = G(noise)
             d_pred_fake = D(fake_images)
-            # d_loss_fake = torch.mean((d_pred_fake - 0) ** 2)
             d_loss_fake = criterion(d_pred_fake, fake_labels)
 
             d_loss = d_loss_real + d_loss_fake
@@ -70,7 +67,6 @@ if __name__ == '__main__':
 
             fake_images = G(noise)
             d_pred_fake = D(fake_images)
-            # g_loss = torch.mean((d_pred_fake - 1) ** 2)
             g_loss = criterion(d_pred_fake, real_labels)
             g_loss.backward()
 

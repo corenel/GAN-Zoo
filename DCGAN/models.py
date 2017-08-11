@@ -1,5 +1,7 @@
 """Models for DCGAN."""
 
+import os
+
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
@@ -10,10 +12,10 @@ from utils import init_weights
 class Discriminator(nn.Module):
     """Model for Discriminator."""
 
-    def __init__(self, num_channels, conv_dim, num_workers):
+    def __init__(self, num_channels, conv_dim, num_gpu):
         """Init for Discriminator model."""
         super(Discriminator, self).__init__()
-        self.num_workers = num_workers
+        self.num_gpu = num_gpu
         self.layer = nn.Sequential(
             # 1st conv layer
             # input num_channels x 64 x 64, output conv_dim x 32 x 32
@@ -39,21 +41,21 @@ class Discriminator(nn.Module):
     def forward(self, input):
         """Forward step for Discriminator model."""
         if isinstance(input.data, torch.cuda.FloatTensor) and \
-                self.num_workers > 1:
+                self.num_gpu > 1:
             out = nn.parallel.data_parallel(
-                self.layer, input, range(self.num_workers))
+                self.layer, input, range(self.num_gpu))
         else:
             out = self.layer(input)
-        return out
+        return out.view(-1, 1).squeeze(1)
 
 
 class Generator(nn.Module):
     """Model for Generator."""
 
-    def __init__(self, num_channels, z_dim, conv_dim, num_workers):
+    def __init__(self, num_channels, z_dim, conv_dim, num_gpu):
         """Init for Generator model."""
         super(Generator, self).__init__()
-        self.num_workers = num_workers
+        self.num_gpu = num_gpu
         self.layer = nn.Sequential(
             # 1st deconv layer, input Z, output (conv_dim*8) x 4 x 4
             nn.ConvTranspose2d(z_dim, conv_dim * 8, 4, 1, 0, bias=False),
@@ -73,36 +75,43 @@ class Generator(nn.Module):
             nn.ConvTranspose2d(conv_dim * 2, conv_dim, 4, 2, 1, bias=False),
             nn.BatchNorm2d(conv_dim),
             nn.ReLU(True),
-            # 2nd deconv layer, output (num_channels) x 64 x 64
+            # output layer, output (num_channels) x 64 x 64
             nn.ConvTranspose2d(conv_dim, num_channels, 4, 2, 1, bias=False),
             nn.Tanh(),
         )
 
-    def forward(self, x):
+    def forward(self, input):
         """Forward step for Generator model."""
         if isinstance(input.data, torch.cuda.FloatTensor) and \
-                self.num_workers > 1:
+                self.num_gpu > 1:
             out = nn.parallel.data_parallel(
-                self.layer, input, range(self.num_workers))
+                self.layer, input, range(self.num_gpu))
         else:
             out = self.layer(input)
         # flatten output
-        return out.view(-1, 1).squeeze(1)
+        return out
 
 
-def get_models(num_channels, d_conv_dim, g_conv_dim, z_dim, num_workers):
+def get_models(num_channels, d_conv_dim, g_conv_dim, z_dim, num_gpu,
+               d_model_restore=None, g_model_restore=None):
     """Get models with cuda and inited weights."""
     D = Discriminator(num_channels=num_channels,
                       conv_dim=d_conv_dim,
-                      num_workers=num_workers)
+                      num_gpu=num_gpu)
     G = Generator(num_channels=num_channels,
                   z_dim=z_dim,
                   conv_dim=g_conv_dim,
-                  num_workers=num_workers)
+                  num_gpu=num_gpu)
 
     # init weights of models
     D.apply(init_weights)
     G.apply(init_weights)
+
+    # restore model weights
+    if d_model_restore is not None and os.path.exists(d_model_restore):
+        D.load_state_dict(torch.load(d_model_restore))
+    if g_model_restore is not None and os.path.exists(g_model_restore):
+        G.load_state_dict(torch.load(g_model_restore))
 
     # check if cuda is available
     if torch.cuda.is_available():

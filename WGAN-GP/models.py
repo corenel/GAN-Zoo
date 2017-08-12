@@ -175,7 +175,7 @@ def get_models():
                       image_size=params.image_size,
                       num_gpu=params.num_gpu,
                       num_extra_layers=params.num_extra_layers,
-                      use_BN=params.use_BN)
+                      use_BN=True)
     G = Generator(num_channels=params.num_channels,
                   z_dim=params.z_dim,
                   conv_dim=params.g_conv_dim,

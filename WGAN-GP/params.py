@@ -35,7 +35,7 @@ g_learning_rate = 0.00005
 beta1 = 0.5
 beta2 = 0.999
 use_Adam = False
-use_BN = True
+use_BN = False
 
 # params for WGAN and WGAN-GP
 use_gradient_penalty = False  # quickly switch WGAN and WGAN-GP

@@ -38,13 +38,15 @@ if __name__ == '__main__':
     # 2. training #
     ###############
     g_step_counter = 0
+    real_labels = make_variable(torch.FloatTensor([1]))
+    fake_labels = make_variable(torch.FloatTensor([-1]))
     fixed_noise = make_variable(torch.randn(
         batch_size, z_dim, 1, 1).normal_(0, 1))
 
     for epoch in range(num_epochs):
-        step = 0
+        data_step = 0
         data_iter = iter(data_loader)
-        while step < len(data_loader):
+        while data_step < len(data_loader):
             ##############################
             # (1) training discriminator #
             ##############################
@@ -60,17 +62,12 @@ if __name__ == '__main__':
 
             # loop for optimizing discriminator
             for d_step in range(critic_iters):
-                # clamp gradient value
-                for p in D.parameters():
-                    p.data.clamp_(clamp_lower, clamp_upper)
 
-                if step < len(data_loader):
+                if data_step < len(data_loader):
                     images, _ = next(data_iter)
                     images = make_variable(images)
-                    batch_size = images.size(0)
-                    real_labels = make_variable(torch.ones(batch_size))
-                    fake_labels = make_variable(torch.zeros(batch_size))
-                    step += 1
+                    # batch_size = images.size(0)
+                    data_step += 1
                 else:
                     break
 
@@ -80,14 +77,17 @@ if __name__ == '__main__':
                 d_loss_real.backward(real_labels)
 
                 noise = make_variable(torch.randn(
-                    batch_size, z_dim, 1, 1).normal_(0, 1))
-                fake_images = G(noise)
-                # use detach to avoid bp through G and spped up inference
-                d_loss_fake = D(fake_images.detach())
+                    batch_size, z_dim, 1, 1).normal_(0, 1), volatile=True)
+                fake_images = make_variable(G(noise).data)
+                d_loss_fake = D(fake_images)
                 d_loss_fake.backward(fake_labels)
 
                 d_loss = d_loss_real - d_loss_fake
                 d_optimizer.step()
+
+                # clamp gradient value
+                for p in D.parameters():
+                    p.data.clamp_(clamp_lower, clamp_upper)
 
             ##########################
             # (2) training generator #
@@ -118,7 +118,7 @@ if __name__ == '__main__':
                       "d_loss={} g_loss={} D(x)={} D(G(z))={}"
                       .format(epoch + 1,
                               num_epochs,
-                              step + 1,
+                              data_step + 1,
                               len(data_loader),
                               g_step_counter + 1,
                               d_loss.data[0],
@@ -137,7 +137,8 @@ if __name__ == '__main__':
                                              os.path.join(
                                                  data_root,
                                                  "WGAN-fake-{}-{}.png"
-                                                 .format(epoch + 1, step + 1))
+                                                 .format(epoch + 1,
+                                                         data_step + 1))
                                              )
 
         #############################

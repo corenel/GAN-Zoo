@@ -77,7 +77,9 @@ class Discriminator(nn.Module):
                 self.layer, input, range(self.num_gpu))
         else:
             out = self.layer(input)
-        return out.view(-1, 1).squeeze(1)
+
+        out = out.mean(0)
+        return out.view(1)
 
 
 class Generator(nn.Module):

@@ -8,11 +8,11 @@ from torch.autograd import Variable
 from params import dataset_mean_value, dataset_std_value, manual_seed
 
 
-def make_variable(tensor):
+def make_variable(tensor, volatile=False):
     """Convert Tensor to Variable."""
     if torch.cuda.is_available():
         tensor = tensor.cuda()
-    return Variable(tensor)
+    return Variable(tensor, volatile=volatile)
 
 
 def denormalize(x):

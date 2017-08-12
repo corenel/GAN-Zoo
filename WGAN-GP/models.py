@@ -6,7 +6,7 @@ import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
 
-from params import *
+import params
 from utils import init_weights
 
 
@@ -170,29 +170,31 @@ class Generator(nn.Module):
 
 def get_models():
     """Get models with cuda and inited weights."""
-    D = Discriminator(num_channels=num_channels,
-                      conv_dim=d_conv_dim,
-                      image_size=image_size,
-                      num_gpu=num_gpu,
-                      num_extra_layers=num_extra_layers,
-                      use_BN=use_BN)
-    G = Generator(num_channels=num_channels,
-                  z_dim=z_dim,
-                  conv_dim=g_conv_dim,
-                  image_size=image_size,
-                  num_gpu=num_gpu,
-                  num_extra_layers=num_extra_layers,
-                  use_BN=use_BN)
+    D = Discriminator(num_channels=params.num_channels,
+                      conv_dim=params.d_conv_dim,
+                      image_size=params.image_size,
+                      num_gpu=params.num_gpu,
+                      num_extra_layers=params.num_extra_layers,
+                      use_BN=params.use_BN)
+    G = Generator(num_channels=params.num_channels,
+                  z_dim=params.z_dim,
+                  conv_dim=params.g_conv_dim,
+                  image_size=params.image_size,
+                  num_gpu=params.num_gpu,
+                  num_extra_layers=params.num_extra_layers,
+                  use_BN=params.use_BN)
 
     # init weights of models
     D.apply(init_weights)
     G.apply(init_weights)
 
     # restore model weights
-    if d_model_restore is not None and os.path.exists(d_model_restore):
-        D.load_state_dict(torch.load(d_model_restore))
-    if g_model_restore is not None and os.path.exists(g_model_restore):
-        G.load_state_dict(torch.load(g_model_restore))
+    if params.d_model_restore is not None and \
+            os.path.exists(params.d_model_restore):
+        D.load_state_dict(torch.load(params.d_model_restore))
+    if params.g_model_restore is not None and \
+            os.path.exists(params.g_model_restore):
+        G.load_state_dict(torch.load(params.g_model_restore))
 
     # check if cuda is available
     if torch.cuda.is_available():

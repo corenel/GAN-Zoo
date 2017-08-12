@@ -5,7 +5,7 @@ import random
 import torch
 from torch.autograd import Variable
 
-from params import dataset_mean_value, dataset_std_value, manual_seed
+import params
 
 
 def make_variable(tensor, volatile=False):
@@ -17,7 +17,7 @@ def make_variable(tensor, volatile=False):
 
 def denormalize(x):
     """Invert normalization, and then convert array into image."""
-    out = x * dataset_std_value + dataset_mean_value
+    out = x * params.dataset_std_value + params.dataset_mean_value
     return out.clamp(0, 1)
 
 
@@ -34,10 +34,10 @@ def init_weights(layer):
 def init_random_seed():
     """Init random seed."""
     seed = None
-    if manual_seed is None:
+    if params.manual_seed is None:
         seed = random.randint(1, 10000)
     else:
-        seed = manual_seed
+        seed = params.manual_seed
     print("use random seed: {}".format(seed))
     random.seed(seed)
     torch.manual_seed(seed)

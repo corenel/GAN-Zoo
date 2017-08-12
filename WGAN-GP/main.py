@@ -48,6 +48,9 @@ if __name__ == '__main__':
             ##############################
             # (1) training discriminator #
             ##############################
+            # requires to compute gradients for D
+            for p in D.parameters():
+                p.requires_grad = True
 
             # set steps for discriminator
             if g_step_counter < 25 or g_step_counter % 500 == 0:
@@ -73,12 +76,11 @@ if __name__ == '__main__':
 
                 d_optimizer.zero_grad()
 
-                noise = make_variable(torch.randn(
-                    batch_size, z_dim, 1, 1).normal_(0, 1))
-
                 d_loss_real = D(images)
                 d_loss_real.backward(real_labels)
 
+                noise = make_variable(torch.randn(
+                    batch_size, z_dim, 1, 1).normal_(0, 1))
                 fake_images = G(noise)
                 # use detach to avoid bp through G and spped up inference
                 d_loss_fake = D(fake_images.detach())
@@ -90,6 +92,10 @@ if __name__ == '__main__':
             ##########################
             # (2) training generator #
             ##########################
+            # avoid to compute gradients for D
+            for p in D.parameters():
+                p.requires_grad = False  # to avoid computation
+
             for g_step in range(g_steps):
                 d_optimizer.zero_grad()
                 g_optimizer.zero_grad()

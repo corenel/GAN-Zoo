@@ -90,29 +90,6 @@ class Generator(nn.Module):
         assert image_size % 16 == 0, "image size must be a multiple of 16!"
 
         self.num_gpu = num_gpu
-        # self.layer = nn.Sequential(
-        #     # 1st deconv layer, input Z, output (conv_dim*8) x 4 x 4
-        #     nn.ConvTranspose2d(z_dim, conv_dim * 8, 4, 1, 0, bias=False),
-        #     nn.BatchNorm2d(conv_dim * 8),
-        #     nn.ReLU(True),
-        #     # 2nd deconv layer, output (conv_dim*4) x 8 x 8
-        #     nn.ConvTranspose2d(conv_dim * 8, conv_dim * \
-        #                        4, 4, 2, 1, bias=False),
-        #     nn.BatchNorm2d(conv_dim * 4),
-        #     nn.ReLU(True),
-        #     # 3rd deconv layer, output (conv_dim*2) x 16 x 16
-        #     nn.ConvTranspose2d(conv_dim * 4, conv_dim * \
-        #                        2, 4, 2, 1, bias=False),
-        #     nn.BatchNorm2d(conv_dim * 2),
-        #     nn.ReLU(True),
-        #     # 4th deconv layer, output (conv_dim) x 32 x 32
-        #     nn.ConvTranspose2d(conv_dim * 2, conv_dim, 4, 2, 1, bias=False),
-        #     nn.BatchNorm2d(conv_dim),
-        #     nn.ReLU(True),
-        #     # output layer, output (num_channels) x 64 x 64
-        #     nn.ConvTranspose2d(conv_dim, num_channels, 4, 2, 1, bias=False),
-        #     nn.Tanh(),
-        # )
         self.layer = nn.Sequential()
 
         conv_depth = conv_dim // 2

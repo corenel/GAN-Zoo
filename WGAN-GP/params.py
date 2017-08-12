@@ -12,6 +12,7 @@ image_size = 64
 # params for setting up models
 model_root = "../model/"
 num_channels = 3
+num_extra_layers = 0
 z_dim = 100
 d_conv_dim = 64
 g_conv_dim = 64
@@ -21,8 +22,8 @@ g_model_restore = None
 # params for training network
 num_gpu = 1
 num_epochs = 25
-log_step = 10
-sample_step = 100
+log_step = 1
+sample_step = 10
 save_step = 10
 manual_seed = None
 

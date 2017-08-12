@@ -22,7 +22,7 @@ g_model_restore = None
 # params for training network
 num_gpu = 1
 num_epochs = 25
-log_step = 10
+log_step = 1
 sample_step = 100
 save_step = 10
 manual_seed = None
@@ -35,7 +35,7 @@ g_learning_rate = 0.00005
 beta1 = 0.5
 beta2 = 0.999
 use_Adam = False
-use_BN = False
+use_BN = True
 
 # params for WGAN and WGAN-GP
 use_gradient_penalty = False  # quickly switch WGAN and WGAN-GP

@@ -202,4 +202,7 @@ def get_models():
         D.cuda()
         G.cuda()
 
+    print(D)
+    print(G)
+
     return D, G

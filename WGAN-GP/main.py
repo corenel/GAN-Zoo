@@ -58,6 +58,8 @@ if __name__ == '__main__':
 
             # set steps for discriminator
             if g_step_counter < 25 or g_step_counter % 500 == 0:
+                # this helps to start with the critic at optimum
+                # even in the first iterations.
                 critic_iters = 100
             else:
                 critic_iters = params.d_steps
@@ -100,7 +102,6 @@ if __name__ == '__main__':
                 p.requires_grad = False  # to avoid computation
 
             for g_step in range(params.g_steps):
-                d_optimizer.zero_grad()
                 g_optimizer.zero_grad()
 
                 noise = make_variable(torch.randn(

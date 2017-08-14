@@ -38,6 +38,6 @@ use_Adam = False
 use_BN = True
 
 # params for WGAN and WGAN-GP
-use_gradient_penalty = False  # quickly switch WGAN and WGAN-GP
-penalty_lambda = 10
+clamp_upper = 0.01
+clamp_lower = -0.01
 # TODO(corenel) add extra layers for D and G?

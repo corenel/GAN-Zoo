@@ -1,5 +1,7 @@
 # WGAN-GP (Wasserstein GANs with Gradient Penalty)
 
+W.I.P
+
 This script implements the paper *[Improved Training of Wasserstein GANs](https://arxiv.org/abs/1704.00028)*.
 
 ## Usage

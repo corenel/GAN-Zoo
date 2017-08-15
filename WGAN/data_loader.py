@@ -22,3 +22,10 @@ dataset = dset.CIFAR10(root=params.data_root,
 data_loader = data.DataLoader(dataset=dataset,
                               batch_size=params.batch_size,
                               shuffle=True)
+
+
+def get_data_iterator():
+    """Inf data iterator."""
+    while True:
+        for images, _ in data_loader:
+            yield images

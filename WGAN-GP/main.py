@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     for epoch in range(params.num_epochs):
         data_step = 0
-        data_iter = get_data_iterator
+        data_iter = get_data_iterator()
         ##############################
         # (1) training discriminator #
         ##############################
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
         # loop for optimizing discriminator
         for d_step in range(critic_iters):
-            images, _ = next(data_iter)
+            images = next(data_iter)
             data_step += 1
             images = make_variable(images)
             # batch_size = images.size(0)

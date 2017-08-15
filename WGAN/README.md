@@ -1,6 +1,6 @@
-# WGAN-GP (Wasserstein GANs with Gradient Penalty)
+# WGAN (Wasserstein GAN)
 
-This script implements the paper *[Improved Training of Wasserstein GANs](https://arxiv.org/abs/1704.00028)*.
+This script implements the paper *[Wasserstein GAN](https://arxiv.org/abs/1701.07875)*.
 
 ## Usage
 Run `python3 main.py` to start training WGAN.

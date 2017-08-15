@@ -59,6 +59,7 @@ def calc_gradient_penalty(D, real_data, fake_data):
     alpha = make_cuda(alpha)
 
     interpolates = make_variable(alpha * real_data + ((1 - alpha) * fake_data))
+    interpolates.requires_grad = True
 
     disc_interpolates = D(interpolates)
 

@@ -11,7 +11,8 @@ import torchvision
 import params
 from data_loader import data_loader, get_data_iterator
 from models import get_models
-from utils import denormalize, init_random_seed, make_variable
+from utils import (calc_gradient_penalty, denormalize, init_random_seed,
+                   make_variable)
 
 if __name__ == '__main__':
     ####################
@@ -82,12 +83,14 @@ if __name__ == '__main__':
             d_loss_fake = D(fake_images)
             d_loss_fake.backward(fake_labels)
 
-            d_loss = d_loss_real - d_loss_fake
-            d_optimizer.step()
+            # add gradient penalty
+            gradient_penalty = calc_gradient_penalty(
+                D, images.data, fake_images.data)
+            gradient_penalty.backward()
 
-            # clamp gradient value
-            for p in D.parameters():
-                p.data.clamp_(params.clamp_lower, params.clamp_upper)
+            d_loss = d_loss_real - d_loss_fake + gradient_penalty
+            wasserstein_dist = d_loss_fake - d_loss_real
+            d_optimizer.step()
 
         ##########################
         # (2) training generator #
@@ -114,13 +117,14 @@ if __name__ == '__main__':
         ##################
         if ((g_step_counter + 1) % params.log_step == 0):
             print("Epoch [{}/{}] Step [{}/{}] G_STEP[{}]:"
-                  "d_loss={} g_loss={} D(x)={} D(G(z))={}"
+                  "d_loss={} wasserstein_dist={} g_loss={} D(x)={} D(G(z))={}"
                   .format(epoch + 1,
                           params.num_epochs,
                           data_step + 1,
                           len(data_loader),
                           g_step_counter + 1,
                           d_loss.data[0],
+                          wasserstein_dist.data[0],
                           g_loss.data[0],
                           d_loss_real.data[0],
                           d_loss_fake.data[0]))

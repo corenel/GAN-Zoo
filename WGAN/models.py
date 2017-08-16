@@ -1,4 +1,4 @@
-"""Models for DCGAN."""
+"""Models for WGAN."""
 
 import os
 

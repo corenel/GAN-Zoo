@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Main code for WGAN-GP."""
+"""Main code for WGAN."""
 
 import os
 

@@ -30,10 +30,10 @@ manual_seed = None
 # params for optimizing models
 d_steps = 5
 g_steps = 1
-d_learning_rate = 0.00005
-g_learning_rate = 0.00005
+d_learning_rate = 0.00001
+g_learning_rate = 0.00001
 beta1 = 0.5
-beta2 = 0.999
+beta2 = 0.9
 use_Adam = True
 use_BN = False
 

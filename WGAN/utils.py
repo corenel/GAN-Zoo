@@ -1,4 +1,4 @@
-"""Utils for WGAN-GP."""
+"""Utils for WGAN."""
 
 import random
 

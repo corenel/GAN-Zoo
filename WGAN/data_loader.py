@@ -1,4 +1,4 @@
-"""Dataset setting and data loader for WGAN-GP."""
+"""Dataset setting and data loader for WGAN."""
 
 import torchvision.datasets as dset
 from torch.utils import data

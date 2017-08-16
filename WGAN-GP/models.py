@@ -1,4 +1,4 @@
-"""Models for DCGAN."""
+"""Models for WGAN-GP."""
 
 import os
 
@@ -175,7 +175,7 @@ def get_models():
                       image_size=params.image_size,
                       num_gpu=params.num_gpu,
                       num_extra_layers=params.num_extra_layers,
-                      use_BN=True)
+                      use_BN=params.use_BN)
     G = Generator(num_channels=params.num_channels,
                   z_dim=params.z_dim,
                   conv_dim=params.g_conv_dim,

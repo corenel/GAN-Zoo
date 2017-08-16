@@ -57,12 +57,12 @@ if __name__ == '__main__':
             p.requires_grad = True
 
         # set steps for discriminator
-        if g_step_counter < 25 or g_step_counter % 500 == 0:
-            # this helps to start with the critic at optimum
-            # even in the first iterations.
-            critic_iters = 100
-        else:
-            critic_iters = params.d_steps
+        # if g_step_counter < 25 or g_step_counter % 500 == 0:
+        #     # this helps to start with the critic at optimum
+        #     # even in the first iterations.
+        #     critic_iters = 100
+        # else:
+        critic_iters = params.d_steps
 
         # loop for optimizing discriminator
         for d_step in range(critic_iters):
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         ##########################
         # avoid to compute gradients for D
         for p in D.parameters():
-            p.requires_grad = False  # to avoid computation
+            p.requires_grad = False
 
         for g_step in range(params.g_steps):
             g_optimizer.zero_grad()
@@ -139,7 +139,7 @@ if __name__ == '__main__':
             torchvision.utils.save_image(denormalize(fake_images.data),
                                          os.path.join(
                                              params.data_root,
-                                             "WGAN-fake-{}-{}.png"
+                                             "WGAN-GP-fake-{}-{}.png"
                                              .format(epoch + 1,
                                                      data_step + 1))
                                          )
@@ -152,7 +152,7 @@ if __name__ == '__main__':
                 os.makedirs(params.model_root)
             torch.save(D.state_dict(), os.path.join(
                 params.model_root,
-                "WGAN-discriminator-{}.pkl".format(epoch + 1)))
+                "WGAN-GP-discriminator-{}.pkl".format(epoch + 1)))
             torch.save(G.state_dict(), os.path.join(
                 params.model_root,
-                "WGAN-generator-{}.pkl".format(epoch + 1)))
+                "WGAN-GP-generator-{}.pkl".format(epoch + 1)))

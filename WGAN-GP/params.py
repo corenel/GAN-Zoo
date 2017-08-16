@@ -21,10 +21,10 @@ g_model_restore = None
 
 # params for training network
 num_gpu = 1
-num_epochs = 100
+num_epochs = 200000
 log_step = 1
 sample_step = 100
-save_step = 10
+save_step = 100
 manual_seed = None
 
 # params for optimizing models
@@ -38,6 +38,6 @@ use_Adam = True
 use_BN = False
 
 # params for WGAN and WGAN-GP
-use_gradient_penalty = False  # quickly switch WGAN and WGAN-GP
+use_gradient_penalty = True  # quickly switch WGAN and WGAN-GP
 penalty_lambda = 10
 # TODO(corenel) add extra layers for D and G?

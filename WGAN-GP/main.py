@@ -44,11 +44,11 @@ if __name__ == '__main__':
     real_labels = make_variable(torch.FloatTensor([1]))
     fake_labels = make_variable(torch.FloatTensor([-1]))
     fixed_noise = make_variable(torch.randn(
-        params.batch_size, params.z_dim, 1, 1).normal_(0, 1))
+        params.batch_size, params.z_dim, 1, 1).normal_(0, 1), volatile=True)
+    data_step = 0
+    data_iter = get_data_iterator()
 
     for epoch in range(params.num_epochs):
-        data_step = 0
-        data_iter = get_data_iterator()
         ##############################
         # (1) training discriminator #
         ##############################
@@ -69,27 +69,28 @@ if __name__ == '__main__':
             images = next(data_iter)
             data_step += 1
             images = make_variable(images)
-            # batch_size = images.size(0)
+            if images.size(0) != params.batch_size:
+                continue
 
             d_optimizer.zero_grad()
 
             d_loss_real = D(images)
-            d_loss_real.backward(real_labels)
+            d_loss_real.backward(fake_labels)
 
             noise = make_variable(torch.randn(
                 params.batch_size, params.z_dim, 1, 1).normal_(0, 1),
                 volatile=True)
             fake_images = make_variable(G(noise).data)
             d_loss_fake = D(fake_images)
-            d_loss_fake.backward(fake_labels)
+            d_loss_fake.backward(real_labels)
 
             # add gradient penalty
             gradient_penalty = calc_gradient_penalty(
                 D, images.data, fake_images.data)
             gradient_penalty.backward()
 
-            d_loss = d_loss_real - d_loss_fake + gradient_penalty
-            wasserstein_dist = d_loss_fake - d_loss_real
+            d_loss = d_loss_fake - d_loss_real + gradient_penalty
+            wasserstein_dist = d_loss_real - d_loss_fake
             d_optimizer.step()
 
         ##########################
@@ -107,7 +108,7 @@ if __name__ == '__main__':
 
             fake_images = G(noise)
             g_loss = D(fake_images)
-            g_loss.backward(real_labels)
+            g_loss.backward(fake_labels)
 
             g_optimizer.step()
             g_step_counter += 1
@@ -120,7 +121,7 @@ if __name__ == '__main__':
                   "d_loss={} wasserstein_dist={} g_loss={} D(x)={} D(G(z))={}"
                   .format(epoch + 1,
                           params.num_epochs,
-                          data_step + 1,
+                          (data_step + 1) % len(data_loader),
                           len(data_loader),
                           g_step_counter + 1,
                           d_loss.data[0],
@@ -141,7 +142,7 @@ if __name__ == '__main__':
                                              params.data_root,
                                              "WGAN-GP-fake-{}-{}.png"
                                              .format(epoch + 1,
-                                                     data_step + 1))
+                                                     g_step_counter + 1))
                                          )
 
         #############################

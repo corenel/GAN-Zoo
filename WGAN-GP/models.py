@@ -78,8 +78,7 @@ class Discriminator(nn.Module):
         else:
             out = self.layer(input)
 
-        out = out.mean(0)
-        return out.view(1)
+        return out.view(-1)
 
 
 class Generator(nn.Module):
@@ -182,7 +181,7 @@ def get_models():
                   image_size=params.image_size,
                   num_gpu=params.num_gpu,
                   num_extra_layers=params.num_extra_layers,
-                  use_BN=False)
+                  use_BN=True)
 
     # init weights of models
     D.apply(init_weights)

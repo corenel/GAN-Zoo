@@ -11,8 +11,8 @@ import torchvision
 import params
 from data_loader import data_loader, get_data_iterator
 from models import get_models
-from utils import (calc_gradient_penalty, denormalize, init_random_seed,
-                   make_variable)
+from utils import (calc_gradient_penalty, init_random_seed, make_variable,
+                   save_fake_image, save_model)
 
 if __name__ == '__main__':
     ####################
@@ -57,40 +57,46 @@ if __name__ == '__main__':
             p.requires_grad = True
 
         # set steps for discriminator
-        # if g_step_counter < 25 or g_step_counter % 500 == 0:
-        #     # this helps to start with the critic at optimum
-        #     # even in the first iterations.
-        #     critic_iters = 100
-        # else:
-        critic_iters = params.d_steps
+        if g_step_counter < 25 or g_step_counter % 500 == 0:
+            # this helps to start with the critic at optimum
+            # even in the first iterations.
+            critic_iters = 100
+        else:
+            critic_iters = params.d_steps
 
         # loop for optimizing discriminator
         for d_step in range(critic_iters):
+            # make images torch.Variable
             images = next(data_iter)
             data_step += 1
             images = make_variable(images)
             if images.size(0) != params.batch_size:
                 continue
 
+            # zero grad for optimizer of discriminator
             d_optimizer.zero_grad()
 
+            # compute real data loss for discriminator
             d_loss_real = D(images)
+            d_loss_real = d_loss_real.mean()
             d_loss_real.backward(fake_labels)
 
+            # compute fake data loss for discriminator
             noise = make_variable(torch.randn(
                 params.batch_size, params.z_dim, 1, 1).normal_(0, 1),
                 volatile=True)
             fake_images = make_variable(G(noise).data)
-            d_loss_fake = D(fake_images)
+            d_loss_fake = D(fake_images.detach())
+            d_loss_fake = d_loss_fake.mean()
             d_loss_fake.backward(real_labels)
 
-            # add gradient penalty
+            # compute gradient penalty
             gradient_penalty = calc_gradient_penalty(
                 D, images.data, fake_images.data)
             gradient_penalty.backward()
 
-            d_loss = d_loss_fake - d_loss_real + gradient_penalty
-            wasserstein_dist = d_loss_real - d_loss_fake
+            # optimize weights of discriminator
+            d_loss = - d_loss_real + d_loss_fake + gradient_penalty
             d_optimizer.step()
 
         ##########################
@@ -100,60 +106,53 @@ if __name__ == '__main__':
         for p in D.parameters():
             p.requires_grad = False
 
-        for g_step in range(params.g_steps):
-            g_optimizer.zero_grad()
+        # zero grad for optimizer of generator
+        g_optimizer.zero_grad()
 
-            noise = make_variable(torch.randn(
-                params.batch_size, params.z_dim, 1, 1).normal_(0, 1))
+        # generate fake images
+        noise = make_variable(torch.randn(
+            params.batch_size, params.z_dim, 1, 1).normal_(0, 1))
+        fake_images = G(noise)
 
-            fake_images = G(noise)
-            g_loss = D(fake_images)
-            g_loss.backward(fake_labels)
+        # compute loss for generator
+        g_loss = D(fake_images).mean()
+        g_loss.backward(fake_labels)
+        g_loss = - g_loss
 
-            g_optimizer.step()
-            g_step_counter += 1
+        # optimize weights of generator
+        g_optimizer.step()
+        g_step_counter += 1
 
         ##################
         # (3) print info #
         ##################
         if ((g_step_counter + 1) % params.log_step == 0):
             print("Epoch [{}/{}] Step [{}/{}] G_STEP[{}]:"
-                  "d_loss={} wasserstein_dist={} g_loss={} D(x)={} D(G(z))={}"
+                  "d_loss={:.5f} g_loss={:.5f} "
+                  "D(x)={:.5f} D(G(z))={:.5f} GP={:.5f}"
                   .format(epoch + 1,
                           params.num_epochs,
                           (data_step + 1) % len(data_loader),
                           len(data_loader),
                           g_step_counter + 1,
                           d_loss.data[0],
-                          wasserstein_dist.data[0],
                           g_loss.data[0],
                           d_loss_real.data[0],
-                          d_loss_fake.data[0]))
+                          d_loss_fake.data[0],
+                          gradient_penalty.data[0])
+                  )
 
         ########################
         # (4) save fake images #
         ########################
         if ((g_step_counter + 1) % params.sample_step == 0):
-            if not os.path.exists(params.data_root):
-                os.makedirs(params.data_root)
-            fake_images = G(fixed_noise)
-            torchvision.utils.save_image(denormalize(fake_images.data),
-                                         os.path.join(
-                                             params.data_root,
-                                             "WGAN-GP-fake-{}-{}.png"
-                                             .format(epoch + 1,
-                                                     g_step_counter + 1))
-                                         )
+            save_fake_image(
+                G, fixed_noise,
+                "WGAN-GP_fake_image-{}.png".format(g_step_counter + 1))
 
-        #############################
-        # (5) save model parameters #
-        #############################
-        if ((epoch + 1) % params.save_step == 0):
-            if not os.path.exists(params.model_root):
-                os.makedirs(params.model_root)
-            torch.save(D.state_dict(), os.path.join(
-                params.model_root,
-                "WGAN-GP-discriminator-{}.pkl".format(epoch + 1)))
-            torch.save(G.state_dict(), os.path.join(
-                params.model_root,
-                "WGAN-GP-generator-{}.pkl".format(epoch + 1)))
+    #############################
+    # (5) save model parameters #
+    #############################
+    if ((epoch + 1) % params.save_step == 0):
+        save_model(D, "WGAN-GP_discriminator-{}.pt".format(epoch + 1))
+        save_model(G, "WGAN-GP_generator-{}.pt".format(epoch + 1))

@@ -21,7 +21,7 @@ g_model_restore = None
 
 # params for training network
 num_gpu = 1
-num_epochs = 200000
+num_epochs = 20000
 log_step = 1
 sample_step = 1000
 save_step = 1000

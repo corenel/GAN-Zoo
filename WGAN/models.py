@@ -64,8 +64,8 @@ class Discriminator(nn.Module):
 
         # output conv layer
         # no more sigmoid function
-        # output [conv_depth x 4 x 4]
-        # e.g. if image_size = 64, then output is [(conv_dim * 8) x 4 x 4]
+        # input [conv_depth x 4 x 4], output [1 x 1 x1]
+        # e.g. if image_size = 64, then input is [(conv_dim * 8) x 4 x 4]
         self.layer.add_module("final.{}-{}.conv".format(conv_depth, 1),
                               nn.Conv2d(conv_depth, 1, 4, 1, 0, bias=False))
 
